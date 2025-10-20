@@ -131,8 +131,11 @@ while True:
     def send(num, counter, sleep):
         with open("apis.json", "r") as f:
             data = json.load(f)
-            api_list = list(data["sms"].values())[0]
-
+         
+        api_list = []
+        for lst in data["sms"].values():
+            api_list.extend(lst)
+         
         if not api_list:
             print("No APIs found in apis.json")
             return
