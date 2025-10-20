@@ -172,6 +172,7 @@ while True:
                             print("Message sent! (Attempt {})".format(i+1))
                             break  # One success = stop trying APIs for this attempt
                      except Exception:
+                         print("API failed:", api.get("name", "unknown"), "->", e)
                          continue  # Try next API if failed
                      time.sleep(sleep)
 
