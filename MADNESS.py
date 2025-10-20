@@ -140,7 +140,7 @@ while True:
               for api in api_list:
                      try:
                             api_url = api.get("url", "")
-                            method = api.get("headers", {})
+                            method = api.get("method", "").upper()
                             data = api.get("data", {})
                             headers = api.get("headers", {})
                           
