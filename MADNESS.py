@@ -134,7 +134,8 @@ while True:
           number = raw_input("Enter Target Number: ")  
           count = raw_input("Enter number of SMS Messages: ")  
           throttle = raw_input("Enter time interval: ")  
-
+          send(number, int(count), int(throttle))
+     
     def send(num, counter, sleep):  
         with open("apis.json", "r") as f:  
             data = json.load(f)  
@@ -190,8 +191,7 @@ while True:
                          print("API failed:", api.get("name", "unknown"), "->", repr(e))  
                          continue  # Try next API if failed  
                      time.sleep(sleep)  
-
-          send(number, int(count), int(throttle))  
+               
           raw_input("Press Enter to return to menu...")  
     finally:  
         pass
