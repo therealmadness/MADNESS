@@ -191,10 +191,8 @@ while True:
                          print("API failed:", api.get("name", "unknown"), "->", repr(e))  
                          continue  # Try next API if failed  
                      time.sleep(sleep)  
-               
-          raw_input("Press Enter to return to menu...")  
-    finally:  
-        pass
+      except KeyboardInterrupt:
+          raw_input("Press Enter to return to menu...")
 
     if x == "3":
        os.system("clear")
